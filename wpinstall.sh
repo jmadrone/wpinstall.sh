@@ -9,7 +9,7 @@
 #
 # The script supports both predefined variables and 
 # interactive input. If environment variables (rootpass,
-# dbname, dbuser, userpass, wpURL) are set before running
+# dbname, dbuser, userpass, wpurl) are set before running
 # the script, it will use those values. Otherwise, it will
 # prompt the user interactively.
 
@@ -49,18 +49,18 @@ EOF
 echo "New MySQL database successfully created."
 
 # Allow predefined variables or interactive input for domain
-: "${wpURL:=$(read -r -p "Enter your WordPress domain (e.g., mywebsite.com): " REPLY && echo $REPLY)}"
+: "${wpurl:=$(read -r -p "Enter your WordPress domain (e.g., mywebsite.com): " REPLY && echo $REPLY)}"
 
 # Download and configure WordPress
 wget -q -O latest.tar.gz https://wordpress.org/latest.tar.gz
 tar -xzf latest.tar.gz -C /var/www
-mv /var/www/wordpress /var/www/$wpURL
+mv /var/www/wordpress /var/www/$wpurl
 rm latest.tar.gz
 
-chown -R www-data:www-data /var/www/$wpURL
-chmod -R 755 /var/www/$wpURL
+chown -R www-data:www-data /var/www/$wpurl
+chmod -R 755 /var/www/$wpurl
 
-cd /var/www/$wpURL
+cd /var/www/$wpurl
 cp wp-config-sample.php wp-config.php
 chmod 640 wp-config.php
 
@@ -86,24 +86,24 @@ mv wp-config-new.php wp-config.php
 rm wp-salts.txt
 
 # Set up Apache virtual host
-cat <<EOF > /etc/apache2/sites-available/$wpURL.conf
+cat <<EOF > /etc/apache2/sites-available/$wpurl.conf
 <VirtualHost *:80>
-    ServerName $wpURL
-    ServerAlias www.$wpURL
-    DocumentRoot /var/www/$wpURL
-    <Directory /var/www/$wpURL>
+    ServerName $wpurl
+    ServerAlias www.$wpurl
+    DocumentRoot /var/www/$wpurl
+    <Directory /var/www/$wpurl>
         AllowOverride All
         Require all granted
     </Directory>
-    ErrorLog \${APACHE_LOG_DIR}/$wpURL-error.log
-    CustomLog \${APACHE_LOG_DIR}/$wpURL-access.log combined
+    ErrorLog \${APACHE_LOG_DIR}/$wpurl-error.log
+    CustomLog \${APACHE_LOG_DIR}/$wpurl-access.log combined
 </VirtualHost>
 EOF
 
-a2ensite $wpURL.conf
+a2ensite $wpurl.conf
 systemctl reload apache2
 
 # Output success message
-WPVER=$(grep "wp_version = " /var/www/$wpURL/wp-includes/version.php | awk -F\' '{print $2}')
+WPVER=$(grep "wp_version = " /var/www/$wpurl/wp-includes/version.php | awk -F\' '{print $2}')
 echo -e "\nWordPress version $WPVER has been successfully installed!"
-echo -en "Visit: http://$wpURL to complete the installation.\n"
+echo -en "Visit: http://$wpurl to complete the installation.\n"
